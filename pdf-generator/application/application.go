@@ -1,7 +1,9 @@
 package application
 
 import (
+	"fmt"
 	"log"
+	"time"
 
 	"github.com/signintech/gopdf"
 	"github.com/solrac97gr/payment-recipt-generator/config-reader/domain/models"
@@ -35,12 +37,18 @@ func (a *PDFGeneratorApp) GenerateInvoicePDF() error {
 
 	// Header
 	DrawHeader(&pdf)
-
 	// From
 	DrawIssuerInformation(&pdf, &a.config.PaymentDetails.Issuer)
-
 	// To
 	DrawCompanyInformation(&pdf, &a.config.PaymentDetails.Company)
+	// Invoice Date
+	DrawInvoiceDate(&pdf)
+	// Due Date
+	DrawDueDate(&pdf)
+	// Items Table
+	DrawItemsTable(&pdf, &a.config.PaymentDetails.Work, &a.config.PaymentDetails.Amount)
+	// Invoice Summary
+	DrawInvoiceSummary(&pdf, &a.config.PaymentDetails.Amount)
 
 	err = a.repo.SavePDFFile(pdf)
 	if err != nil {
@@ -52,55 +60,151 @@ func (a *PDFGeneratorApp) GenerateInvoicePDF() error {
 }
 
 func DrawHeader(pdf *gopdf.GoPdf) {
-	pdf.SetFont("roboto-medium", "", 14)
-	pdf.SetXY(500, 20)
+	pdf.SetFont("roboto-medium", "", 10)
+	pdf.SetXY(300, 20)
 	pdf.Cell(nil, "Invoice")
 }
 
 func DrawIssuerInformation(pdf *gopdf.GoPdf, issuer *models.Issuer) {
 	horizontalStart := 20.0
+	verticalStart := 70.0
+	separator := 20.0
 	fontSize := 9.0
 
 	pdf.SetFont("roboto-light", "", fontSize)
 	pdf.SetFontSize(8)
-	pdf.SetXY(horizontalStart, 70)
+	pdf.SetXY(horizontalStart, verticalStart)
 	pdf.SetTextColor(0, 0, 0)
 	pdf.Cell(nil, "FROM")
-	pdf.SetXY(horizontalStart, 110)
+	pdf.SetXY(horizontalStart, verticalStart+separator*2)
 	pdf.SetFont("roboto-bold", "", fontSize)
 	pdf.Cell(nil, issuer.Name)
 	pdf.SetFont("roboto-regular", "", fontSize)
-	pdf.SetXY(horizontalStart, 130)
+	pdf.SetXY(horizontalStart, verticalStart+separator*3)
 	pdf.Cell(nil, issuer.Address)
-	pdf.SetXY(horizontalStart, 150)
+	pdf.SetXY(horizontalStart, verticalStart+separator*4)
 	pdf.Cell(nil, issuer.Email)
-	pdf.SetXY(horizontalStart, 170)
+	pdf.SetXY(horizontalStart, verticalStart+separator*5)
 	pdf.Cell(nil, issuer.Phone)
-	pdf.SetXY(horizontalStart, 190)
+	pdf.SetXY(horizontalStart, verticalStart+separator*6)
 	pdf.Cell(nil, issuer.Website)
 }
 
 func DrawCompanyInformation(pdf *gopdf.GoPdf, company *models.Company) {
 	horizontalStart := 300.0
+	verticalStart := 70.0
+	separator := 20.0
 	fontSize := 9.0
 
 	pdf.SetFont("roboto-light", "", fontSize)
 	pdf.SetFontSize(8)
-	pdf.SetXY(horizontalStart, 70)
+	pdf.SetXY(horizontalStart, verticalStart)
 	pdf.SetTextColor(0, 0, 0)
 	pdf.Cell(nil, "TO")
-	pdf.SetXY(horizontalStart, 110)
+	pdf.SetXY(horizontalStart, verticalStart+separator*2)
 	pdf.SetFont("roboto-bold", "", fontSize)
 	pdf.Cell(nil, company.Name)
 	pdf.SetFont("roboto-regular", "", fontSize)
-	pdf.SetXY(horizontalStart, 130)
+	pdf.SetXY(horizontalStart, verticalStart+separator*3)
 	pdf.Cell(nil, company.Representative)
-	pdf.SetXY(horizontalStart, 150)
+	pdf.SetXY(horizontalStart, verticalStart+separator*4)
 	pdf.Cell(nil, company.Address)
-	pdf.SetXY(horizontalStart, 170)
+	pdf.SetXY(horizontalStart, verticalStart+separator*5)
 	pdf.Cell(nil, company.Email)
-	pdf.SetXY(horizontalStart, 190)
+	pdf.SetXY(horizontalStart, verticalStart+separator*6)
 	pdf.Cell(nil, company.Website)
+}
+
+func DrawInvoiceDate(pdf *gopdf.GoPdf) {
+	horizontalStart := 20.0
+	verticalStart := 250.0
+
+	pdf.SetFont("roboto-black", "", 9)
+	pdf.SetXY(horizontalStart, verticalStart)
+	pdf.Cell(nil, "Invoice Date:")
+	pdf.SetXY(horizontalStart+55, verticalStart)
+	pdf.SetFont("roboto-regular", "", 9)
+	pdf.Cell(nil, time.Now().Format("02/01/2006"))
+}
+
+func DrawDueDate(pdf *gopdf.GoPdf) {
+	horizontalStart := 300.0
+	verticalStart := 250.0
+
+	pdf.SetFont("roboto-black", "", 9)
+	pdf.SetXY(horizontalStart, verticalStart)
+	pdf.Cell(nil, "Due Date:")
+	pdf.SetXY(horizontalStart+45, verticalStart)
+	pdf.SetFont("roboto-regular", "", 9)
+	pdf.Cell(nil, time.Now().Format("02/01/2006"))
+}
+
+func DrawItemsTable(pdf *gopdf.GoPdf, work *models.Work, amount *models.Amount) {
+	DrawItemsTableHeader(pdf)
+	horizontalStart := 30.0
+	verticalStart := 330.0
+	separator := 80.0
+	fontSize := 9.0
+
+	pdf.SetFont("roboto-regular", "", fontSize)
+	pdf.SetXY(horizontalStart, verticalStart)
+	pdf.Cell(nil, work.Description)
+	pdf.SetXY(horizontalStart+separator*2, verticalStart)
+	pdf.Cell(nil, "1")
+	pdf.SetXY(horizontalStart+separator*4, verticalStart)
+	pdf.Cell(nil, amount.Currency)
+	pdf.SetXY(horizontalStart+separator*5, verticalStart)
+	totalString := fmt.Sprintf("%v", amount.Total)
+	pdf.Cell(nil, totalString)
+
+	DrawItemsTableFooter(pdf, amount)
+}
+
+func DrawItemsTableHeader(pdf *gopdf.GoPdf) {
+	pdf.SetLineWidth(1)
+	pdf.Line(20, 300, 565, 300)
+	horizontalStart := 30.0
+	verticalStart := 306.0
+	separator := 80.0
+	fontSize := 9.0
+
+	pdf.SetFont("roboto-black", "", fontSize)
+	pdf.SetXY(horizontalStart, verticalStart)
+	pdf.Cell(nil, "Item")
+	pdf.SetXY(horizontalStart+separator*2, verticalStart)
+	pdf.Cell(nil, "Quantity")
+	pdf.SetXY(horizontalStart+separator*4, verticalStart)
+	pdf.Cell(nil, "Currency")
+	pdf.SetXY(horizontalStart+separator*5, verticalStart)
+	pdf.Cell(nil, "Total")
+
+	pdf.SetLineWidth(1)
+	pdf.Line(20, 320, 565, 320)
+}
+
+func DrawItemsTableFooter(pdf *gopdf.GoPdf, amount *models.Amount) {
+	pdf.SetLineWidth(1)
+	pdf.Line(20, 360, 565, 360)
+}
+
+func DrawInvoiceSummary(pdf *gopdf.GoPdf, amount *models.Amount) {
+	horizontalStart := 30.0
+	verticalStart := 410.0
+	separator := 80.0
+	fontSize := 9.0
+
+	pdf.SetFont("roboto-black", "", fontSize)
+	pdf.SetXY(horizontalStart+separator*4, verticalStart)
+	pdf.Cell(nil, "Currency")
+	pdf.SetXY(horizontalStart+separator*5, verticalStart)
+	pdf.Cell(nil, amount.Currency)
+
+	pdf.SetFont("roboto-black", "", fontSize)
+	pdf.SetXY(horizontalStart+separator*4, verticalStart+20)
+	pdf.Cell(nil, "Total")
+	pdf.SetXY(horizontalStart+separator*5, verticalStart+20)
+	totalString := fmt.Sprintf("%v", amount.Total)
+	pdf.Cell(nil, totalString)
 }
 
 func AddFonts(pdf *gopdf.GoPdf) error {
