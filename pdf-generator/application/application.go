@@ -60,7 +60,8 @@ func (a *PDFGeneratorApp) GenerateInvoicePDF() error {
 }
 
 func DrawHeader(pdf *gopdf.GoPdf) {
-	pdf.SetFont("roboto-medium", "", 10)
+	pdf.SetFont("roboto-light", "", 10)
+	pdf.SetTextColor(78, 78, 78)
 	pdf.SetXY(300, 20)
 	pdf.Cell(nil, "Invoice")
 }
@@ -70,6 +71,7 @@ func DrawIssuerInformation(pdf *gopdf.GoPdf, issuer *models.Issuer) {
 	verticalStart := 70.0
 	separator := 20.0
 	fontSize := 9.0
+	pdf.SetTextColor(78, 78, 78)
 
 	pdf.SetFont("roboto-light", "", fontSize)
 	pdf.SetFontSize(8)
@@ -78,7 +80,9 @@ func DrawIssuerInformation(pdf *gopdf.GoPdf, issuer *models.Issuer) {
 	pdf.Cell(nil, "FROM")
 	pdf.SetXY(horizontalStart, verticalStart+separator*2)
 	pdf.SetFont("roboto-bold", "", fontSize)
+	pdf.SetTextColor(0, 0, 0)
 	pdf.Cell(nil, issuer.Name)
+	pdf.SetTextColor(78, 78, 78)
 	pdf.SetFont("roboto-regular", "", fontSize)
 	pdf.SetXY(horizontalStart, verticalStart+separator*3)
 	pdf.Cell(nil, issuer.Address)
@@ -95,6 +99,7 @@ func DrawCompanyInformation(pdf *gopdf.GoPdf, company *models.Company) {
 	verticalStart := 70.0
 	separator := 20.0
 	fontSize := 9.0
+	pdf.SetTextColor(78, 78, 78)
 
 	pdf.SetFont("roboto-light", "", fontSize)
 	pdf.SetFontSize(8)
@@ -103,7 +108,9 @@ func DrawCompanyInformation(pdf *gopdf.GoPdf, company *models.Company) {
 	pdf.Cell(nil, "TO")
 	pdf.SetXY(horizontalStart, verticalStart+separator*2)
 	pdf.SetFont("roboto-bold", "", fontSize)
+	pdf.SetTextColor(0, 0, 0)
 	pdf.Cell(nil, company.Name)
+	pdf.SetTextColor(78, 78, 78)
 	pdf.SetFont("roboto-regular", "", fontSize)
 	pdf.SetXY(horizontalStart, verticalStart+separator*3)
 	pdf.Cell(nil, company.Representative)
@@ -121,7 +128,9 @@ func DrawInvoiceDate(pdf *gopdf.GoPdf) {
 
 	pdf.SetFont("roboto-black", "", 9)
 	pdf.SetXY(horizontalStart, verticalStart)
+	pdf.SetTextColor(0, 0, 0)
 	pdf.Cell(nil, "Invoice Date:")
+	pdf.SetTextColor(78, 78, 78)
 	pdf.SetXY(horizontalStart+55, verticalStart)
 	pdf.SetFont("roboto-regular", "", 9)
 	pdf.Cell(nil, time.Now().Format("02/01/2006"))
@@ -133,7 +142,9 @@ func DrawDueDate(pdf *gopdf.GoPdf) {
 
 	pdf.SetFont("roboto-black", "", 9)
 	pdf.SetXY(horizontalStart, verticalStart)
+	pdf.SetTextColor(0, 0, 0)
 	pdf.Cell(nil, "Due Date:")
+	pdf.SetTextColor(78, 78, 78)
 	pdf.SetXY(horizontalStart+45, verticalStart)
 	pdf.SetFont("roboto-regular", "", 9)
 	pdf.Cell(nil, time.Now().Format("02/01/2006"))
@@ -146,6 +157,7 @@ func DrawItemsTable(pdf *gopdf.GoPdf, work *models.Work, amount *models.Amount) 
 	separator := 80.0
 	fontSize := 9.0
 
+	pdf.SetTextColor(78, 78, 78)
 	pdf.SetFont("roboto-regular", "", fontSize)
 	pdf.SetXY(horizontalStart, verticalStart)
 	pdf.Cell(nil, work.Description)
@@ -167,7 +179,7 @@ func DrawItemsTableHeader(pdf *gopdf.GoPdf) {
 	verticalStart := 306.0
 	separator := 80.0
 	fontSize := 9.0
-
+	pdf.SetTextColor(0, 0, 0)
 	pdf.SetFont("roboto-black", "", fontSize)
 	pdf.SetXY(horizontalStart, verticalStart)
 	pdf.Cell(nil, "Item")
@@ -193,6 +205,8 @@ func DrawInvoiceSummary(pdf *gopdf.GoPdf, amount *models.Amount) {
 	separator := 80.0
 	fontSize := 9.0
 
+	pdf.SetTextColor(0, 0, 0)
+
 	pdf.SetFont("roboto-black", "", fontSize)
 	pdf.SetXY(horizontalStart+separator*4, verticalStart)
 	pdf.Cell(nil, "Currency")
@@ -215,25 +229,7 @@ func AddFonts(pdf *gopdf.GoPdf) error {
 		return err
 	}
 
-	err = pdf.AddTTFFont("roboto-black-italic", "./font/Roboto-BlackItalic.ttf")
-	if err != nil {
-		log.Print(err.Error())
-		return err
-	}
-
 	err = pdf.AddTTFFont("roboto-bold", "./font/Roboto-Bold.ttf")
-	if err != nil {
-		log.Print(err.Error())
-		return err
-	}
-
-	err = pdf.AddTTFFont("roboto-bold-italic", "./font/Roboto-BoldItalic.ttf")
-	if err != nil {
-		log.Print(err.Error())
-		return err
-	}
-
-	err = pdf.AddTTFFont("roboto-italic", "./font/Roboto-Italic.ttf")
 	if err != nil {
 		log.Print(err.Error())
 		return err
@@ -245,37 +241,7 @@ func AddFonts(pdf *gopdf.GoPdf) error {
 		return err
 	}
 
-	err = pdf.AddTTFFont("roboto-light-italic", "./font/Roboto-LightItalic.ttf")
-	if err != nil {
-		log.Print(err.Error())
-		return err
-	}
-
-	err = pdf.AddTTFFont("roboto-medium", "./font/Roboto-Medium.ttf")
-	if err != nil {
-		log.Print(err.Error())
-		return err
-	}
-
-	err = pdf.AddTTFFont("roboto-medium-italic", "./font/Roboto-MediumItalic.ttf")
-	if err != nil {
-		log.Print(err.Error())
-		return err
-	}
-
 	err = pdf.AddTTFFont("roboto-regular", "./font/Roboto-Regular.ttf")
-	if err != nil {
-		log.Print(err.Error())
-		return err
-	}
-
-	err = pdf.AddTTFFont("roboto-thin", "./font/Roboto-Thin.ttf")
-	if err != nil {
-		log.Print(err.Error())
-		return err
-	}
-
-	err = pdf.AddTTFFont("roboto-thin-italic", "./font/Roboto-ThinItalic.ttf")
 	if err != nil {
 		log.Print(err.Error())
 		return err
