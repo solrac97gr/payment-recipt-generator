@@ -1,0 +1,32 @@
+{
+  "payment_details": {
+    "company": {
+      "name": "Google Inc.",
+      "address": "Amazing Garage in Sillicon Valley, United States",
+      "representative": "Mr Google",
+      "email": "mr.google@google.com",
+      "website": "https://google.com"
+    },
+
+    "issuer": {
+      "name": "Jhon Doe",
+      "address": "Amazing House in New York, United States",
+      "email": "jhon.doe@gmail.com",
+      "phone": "+51999999999",
+      "website": "https://google.com"
+    },
+
+    "amount": {
+      "currency": "USD",
+      "total": 5000
+    },
+
+    "work": {
+      "description": "Software Development Services"
+    }
+  },
+  "output": {
+    "folder_path": "./out/",
+    "file_type": "pdf"
+  }
+}

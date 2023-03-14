@@ -29,7 +29,7 @@ var (
 
 // GetConfigFile returns the content of the config file
 func (c *ConfigFileRepository) GetConfigFile() ([]byte, error) {
-	data, err := ioutil.ReadFile("config.json")
+	data, err := ioutil.ReadFile(c.filePath)
 	if err != nil {
 		log.Println(err)
 		return nil, ErrConfigFileCannotBeRead
