@@ -46,9 +46,7 @@ func (a *PDFGeneratorApp) GenerateInvoicePDF() error {
 	// Due Date
 	DrawDueDate(&pdf)
 	// Items Table
-	DrawItemsTable(&pdf, &a.config.PaymentDetails.Work, &a.config.PaymentDetails.Amount)
-	// Invoice Summary
-	DrawInvoiceSummary(&pdf, &a.config.PaymentDetails.Amount)
+	DrawItemsTable(&pdf, a.config.PaymentDetails.Works)
 
 	err = a.repo.SavePDFFile(pdf)
 	if err != nil {
@@ -150,7 +148,7 @@ func DrawDueDate(pdf *gopdf.GoPdf) {
 	pdf.Cell(nil, time.Now().Format("02/01/2006"))
 }
 
-func DrawItemsTable(pdf *gopdf.GoPdf, work *models.Work, amount *models.Amount) {
+func DrawItemsTable(pdf *gopdf.GoPdf, works []*models.Work) {
 	DrawItemsTableHeader(pdf)
 	horizontalStart := 30.0
 	verticalStart := 330.0
@@ -159,17 +157,21 @@ func DrawItemsTable(pdf *gopdf.GoPdf, work *models.Work, amount *models.Amount) 
 
 	pdf.SetTextColor(78, 78, 78)
 	pdf.SetFont("roboto-regular", "", fontSize)
-	pdf.SetXY(horizontalStart, verticalStart)
-	pdf.Cell(nil, work.Description)
-	pdf.SetXY(horizontalStart+separator*2, verticalStart)
-	pdf.Cell(nil, "1")
-	pdf.SetXY(horizontalStart+separator*4, verticalStart)
-	pdf.Cell(nil, amount.Currency)
-	pdf.SetXY(horizontalStart+separator*5, verticalStart)
-	totalString := fmt.Sprintf("%v", amount.Total)
-	pdf.Cell(nil, totalString)
 
-	DrawItemsTableFooter(pdf, amount)
+	for i, work := range works {
+		pdf.SetXY(horizontalStart, verticalStart+float64(i)*20.0)
+		pdf.Cell(nil, work.Description)
+		pdf.SetXY(horizontalStart+separator*2, verticalStart+float64(i)*20.0)
+		pdf.Cell(nil, "1")
+		pdf.SetXY(horizontalStart+separator*4, verticalStart+float64(i)*20.0)
+		pdf.Cell(nil, work.Currency)
+		pdf.SetXY(horizontalStart+separator*5, verticalStart+float64(i)*20.0)
+		totalString := fmt.Sprintf("%v", work.Quantity*int(work.UnitPrice))
+		pdf.Cell(nil, totalString)
+	}
+
+	DrawItemsTableFooter(pdf, verticalStart+float64(len(works))*20.0)
+	DrawInvoiceSummary(pdf, works, verticalStart+float64(len(works))*20.0+20.0)
 }
 
 func DrawItemsTableHeader(pdf *gopdf.GoPdf) {
@@ -194,14 +196,13 @@ func DrawItemsTableHeader(pdf *gopdf.GoPdf) {
 	pdf.Line(20, 320, 565, 320)
 }
 
-func DrawItemsTableFooter(pdf *gopdf.GoPdf, amount *models.Amount) {
+func DrawItemsTableFooter(pdf *gopdf.GoPdf, positionY float64) {
 	pdf.SetLineWidth(1)
-	pdf.Line(20, 360, 565, 360)
+	pdf.Line(20, positionY, 565, positionY)
 }
 
-func DrawInvoiceSummary(pdf *gopdf.GoPdf, amount *models.Amount) {
+func DrawInvoiceSummary(pdf *gopdf.GoPdf, works []*models.Work, verticalStart float64) {
 	horizontalStart := 30.0
-	verticalStart := 410.0
 	separator := 80.0
 	fontSize := 9.0
 
@@ -211,13 +212,25 @@ func DrawInvoiceSummary(pdf *gopdf.GoPdf, amount *models.Amount) {
 	pdf.SetXY(horizontalStart+separator*4, verticalStart)
 	pdf.Cell(nil, "Currency")
 	pdf.SetXY(horizontalStart+separator*5, verticalStart)
-	pdf.Cell(nil, amount.Currency)
+	pdf.Cell(nil, works[0].Currency)
+
+	total := 0.0
+	for i, work := range works {
+		pdf.SetFont("roboto-black", "", fontSize)
+		pdf.SetXY(horizontalStart+separator*4, verticalStart+float64((i+1)*20))
+		pdf.Cell(nil, fmt.Sprintf("Subtotal %d", i+1))
+		pdf.SetXY(horizontalStart+separator*5, verticalStart+float64((i+1)*20))
+		amount := float64(work.Quantity) * work.UnitPrice
+		total += amount
+		totalString := fmt.Sprintf("%v", amount)
+		pdf.Cell(nil, totalString)
+	}
 
 	pdf.SetFont("roboto-black", "", fontSize)
-	pdf.SetXY(horizontalStart+separator*4, verticalStart+20)
+	pdf.SetXY(horizontalStart+separator*4, verticalStart+float64((len(works)+1)*20))
 	pdf.Cell(nil, "Total")
-	pdf.SetXY(horizontalStart+separator*5, verticalStart+20)
-	totalString := fmt.Sprintf("%v", amount.Total)
+	pdf.SetXY(horizontalStart+separator*5, verticalStart+float64((len(works)+1)*20))
+	totalString := fmt.Sprintf("%v", total)
 	pdf.Cell(nil, totalString)
 }
 

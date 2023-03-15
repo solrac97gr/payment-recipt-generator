@@ -13,8 +13,7 @@ type Output struct {
 type PaymentDetails struct {
 	Company Company `json:"company"`
 	Issuer  Issuer  `json:"issuer"`
-	Amount  Amount  `json:"amount"`
-	Work    Work    `json:"work"`
+	Works   []*Work `json:"works"`
 }
 
 type Company struct {
@@ -34,10 +33,8 @@ type Issuer struct {
 }
 
 type Work struct {
-	Description string `json:"description"`
-}
-
-type Amount struct {
-	Currency string  `json:"currency"`
-	Total    float64 `json:"total"`
+	Description string  `json:"description"`
+	Quantity    int     `json:"quantity"`
+	UnitPrice   float64 `json:"unit_price"`
+	Currency    string  `json:"currency"`
 }

@@ -16,14 +16,38 @@
       "website": "https://google.com"
     },
 
-    "amount": {
-      "currency": "USD",
-      "total": 5000
-    },
-
-    "work": {
-      "description": "Software Development Services"
-    }
+    "works": [
+      {
+        "description": "Software Development Services",
+        "quantity": 3,
+        "unit_price": 8000,
+        "currency": "USD"
+      },
+      {
+        "description": "UX/UI Services",
+        "quantity": 2,
+        "unit_price": 900,
+        "currency": "USD"
+      },
+      {
+        "description": "Consulting Services",
+        "quantity": 5,
+        "unit_price": 500,
+        "currency": "USD"
+      },
+      {
+        "description": "Hosting Services",
+        "quantity": 2,
+        "unit_price": 100,
+        "currency": "USD"
+      },
+      {
+        "description": "Domain Registration",
+        "quantity": 9,
+        "unit_price": 10,
+        "currency": "USD"
+      }
+    ]
   },
   "output": {
     "folder_path": "./out/",
