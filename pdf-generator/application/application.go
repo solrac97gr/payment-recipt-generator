@@ -46,7 +46,7 @@ func (a *PDFGeneratorApp) GenerateInvoicePDF() error {
 	// Due Date
 	DrawDueDate(&pdf)
 	// Items Table
-	DrawItemsTable(&pdf, a.config.PaymentDetails.Works)
+	DrawItemsTableAndSummary(&pdf, a.config.PaymentDetails.Works)
 
 	err = a.repo.SavePDFFile(pdf)
 	if err != nil {
@@ -148,7 +148,7 @@ func DrawDueDate(pdf *gopdf.GoPdf) {
 	pdf.Cell(nil, time.Now().Format("02/01/2006"))
 }
 
-func DrawItemsTable(pdf *gopdf.GoPdf, works []*models.Work) {
+func DrawItemsTableAndSummary(pdf *gopdf.GoPdf, works []*models.Work) {
 	DrawItemsTableHeader(pdf)
 	horizontalStart := 30.0
 	verticalStart := 330.0
