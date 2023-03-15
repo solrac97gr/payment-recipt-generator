@@ -20,3 +20,9 @@ config.json
 
 # Output files
 /out/*
+
+# Log
+*.log
+
+# Build
+main
